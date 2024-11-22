@@ -74,7 +74,7 @@ class ProgressBar extends LeafRenderObjectWidget {
   /// When a user drags the thumb to a new location you can be notified
   /// by the [onSeek] callback so that you can update your audio/video player.
   const ProgressBar({
-    Key? key,
+    super.key,
     required this.progress,
     required this.total,
     this.buffered,
@@ -96,7 +96,7 @@ class ProgressBar extends LeafRenderObjectWidget {
     this.timeLabelType,
     this.timeLabelTextStyle,
     this.timeLabelPadding = 0.0,
-  }) : super(key: key);
+  });
 
   /// The elapsed playing time of the media.
   ///
@@ -257,7 +257,7 @@ class ProgressBar extends LeafRenderObjectWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final textStyle = timeLabelTextStyle ?? theme.textTheme.bodyLarge;
-    final textScaleFactor = MediaQuery.textScaleFactorOf(context);
+    final textScaler = MediaQuery.textScalerOf(context);
     return _RenderProgressBar(
       progress: progress,
       total: total,
@@ -281,7 +281,7 @@ class ProgressBar extends LeafRenderObjectWidget {
       timeLabelType: timeLabelType ?? TimeLabelType.totalTime,
       timeLabelTextStyle: textStyle,
       timeLabelPadding: timeLabelPadding,
-      textScaleFactor: textScaleFactor,
+      textScaler: textScaler,
     );
   }
 
@@ -290,7 +290,7 @@ class ProgressBar extends LeafRenderObjectWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final textStyle = timeLabelTextStyle ?? theme.textTheme.bodyLarge;
-    final textScaleFactor = MediaQuery.textScaleFactorOf(context);
+    final textScaler = MediaQuery.textScalerOf(context);
     (renderObject as _RenderProgressBar)
       ..progress = progress
       ..total = total
@@ -314,7 +314,7 @@ class ProgressBar extends LeafRenderObjectWidget {
       ..timeLabelType = timeLabelType ?? TimeLabelType.totalTime
       ..timeLabelTextStyle = textStyle
       ..timeLabelPadding = timeLabelPadding
-      ..textScaleFactor = textScaleFactor;
+      ..textScaler = textScaler;
   }
 
   @override
@@ -429,7 +429,7 @@ class _RenderProgressBar extends RenderBox {
     required TimeLabelType timeLabelType,
     TextStyle? timeLabelTextStyle,
     double timeLabelPadding = 0.0,
-    double textScaleFactor = 1.0,
+    required TextScaler textScaler,
   })  : _total = total,
         _buffered = buffered,
         _onSeek = onSeek,
@@ -450,7 +450,7 @@ class _RenderProgressBar extends RenderBox {
         _timeLabelType = timeLabelType,
         _timeLabelTextStyle = timeLabelTextStyle,
         _timeLabelPadding = timeLabelPadding,
-        _textScaleFactor = textScaleFactor {
+        _textScaler = textScaler {
     _drag = _EagerHorizontalDragGestureRecognizer()
       ..onStart = _onDragStart
       ..onUpdate = _onDragUpdate
@@ -612,7 +612,7 @@ class _RenderProgressBar extends RenderBox {
     TextPainter textPainter = TextPainter(
       text: TextSpan(text: text, style: _timeLabelTextStyle),
       textDirection: TextDirection.ltr,
-      textScaleFactor: textScaleFactor,
+      textScaler: textScaler,
     );
     textPainter.layout(minWidth: 0, maxWidth: double.infinity);
     return textPainter;
@@ -825,13 +825,12 @@ class _RenderProgressBar extends RenderBox {
     markNeedsLayout();
   }
 
-  /// The text scale factor for the `progress` and `total` text labels.
-  /// By default the value is 1.0.
-  double get textScaleFactor => _textScaleFactor;
-  double _textScaleFactor;
-  set textScaleFactor(double value) {
-    if (_textScaleFactor == value) return;
-    _textScaleFactor = value;
+  /// The text scaler for the `progress` and `total` text labels.
+  TextScaler get textScaler => _textScaler;
+  TextScaler _textScaler;
+  set textScaler(TextScaler value) {
+    if (_textScaler == value) return;
+    _textScaler = value;
     _clearLabelCache();
     markNeedsLayout();
   }
@@ -854,11 +853,18 @@ class _RenderProgressBar extends RenderBox {
   @override
   bool hitTestSelf(Offset position) => true;
 
+  bool _dragEnabled = false;
+
+  void enableDrag() => _dragEnabled = true;
+  void disableDrag() => _dragEnabled = false;
+
   @override
   void handleEvent(PointerEvent event, BoxHitTestEntry entry) {
     assert(debugHandleEvent(event, entry));
     if (event is PointerDownEvent) {
-      _drag?.addPointer(event);
+      if (_dragEnabled) {
+        _drag?.addPointer(event);
+      }
     }
   }
 
