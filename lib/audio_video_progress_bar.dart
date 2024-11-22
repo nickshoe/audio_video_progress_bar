@@ -74,7 +74,7 @@ class ProgressBar extends LeafRenderObjectWidget {
   /// When a user drags the thumb to a new location you can be notified
   /// by the [onSeek] callback so that you can update your audio/video player.
   const ProgressBar({
-    super.key,
+    Key? key,
     required this.progress,
     required this.total,
     this.buffered,
@@ -97,7 +97,7 @@ class ProgressBar extends LeafRenderObjectWidget {
     this.timeLabelType,
     this.timeLabelTextStyle,
     this.timeLabelPadding = 0.0,
-  });
+  }) : super(key: key);
 
   /// The elapsed playing time of the media.
   ///
@@ -265,7 +265,7 @@ class ProgressBar extends LeafRenderObjectWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final textStyle = timeLabelTextStyle ?? theme.textTheme.bodyLarge;
-    final textScaler = MediaQuery.textScalerOf(context);
+    final textScaleFactor = MediaQuery.textScaleFactorOf(context);
     return _RenderProgressBar(
       progress: progress,
       total: total,
@@ -289,7 +289,7 @@ class ProgressBar extends LeafRenderObjectWidget {
       timeLabelType: timeLabelType ?? TimeLabelType.totalTime,
       timeLabelTextStyle: textStyle,
       timeLabelPadding: timeLabelPadding,
-      textScaler: textScaler,
+      textScaleFactor: textScaleFactor,
       dragEnabled: dragEnabled,
     );
   }
@@ -299,7 +299,7 @@ class ProgressBar extends LeafRenderObjectWidget {
     final theme = Theme.of(context);
     final primaryColor = theme.colorScheme.primary;
     final textStyle = timeLabelTextStyle ?? theme.textTheme.bodyLarge;
-    final textScaler = MediaQuery.textScalerOf(context);
+    final textScaleFactor = MediaQuery.textScaleFactorOf(context);
     (renderObject as _RenderProgressBar)
       ..progress = progress
       ..total = total
@@ -323,7 +323,7 @@ class ProgressBar extends LeafRenderObjectWidget {
       ..timeLabelType = timeLabelType ?? TimeLabelType.totalTime
       ..timeLabelTextStyle = textStyle
       ..timeLabelPadding = timeLabelPadding
-      ..textScaler = textScaler;
+      ..textScaleFactor = textScaleFactor;
   }
 
   @override
@@ -438,7 +438,7 @@ class _RenderProgressBar extends RenderBox {
     required TimeLabelType timeLabelType,
     TextStyle? timeLabelTextStyle,
     double timeLabelPadding = 0.0,
-    required TextScaler textScaler,
+    double textScaleFactor = 1.0,
     bool dragEnabled = true,
   })  : _total = total,
         _buffered = buffered,
@@ -460,7 +460,7 @@ class _RenderProgressBar extends RenderBox {
         _timeLabelType = timeLabelType,
         _timeLabelTextStyle = timeLabelTextStyle,
         _timeLabelPadding = timeLabelPadding,
-        _textScaler = textScaler,
+        _textScaleFactor = textScaleFactor,
         _dragEnabled = dragEnabled {
     _drag = _EagerHorizontalDragGestureRecognizer()
       ..onStart = _onDragStart
@@ -627,7 +627,7 @@ class _RenderProgressBar extends RenderBox {
     TextPainter textPainter = TextPainter(
       text: TextSpan(text: text, style: _timeLabelTextStyle),
       textDirection: TextDirection.ltr,
-      textScaler: textScaler,
+      textScaleFactor: textScaleFactor,
     );
     textPainter.layout(minWidth: 0, maxWidth: double.infinity);
     return textPainter;
