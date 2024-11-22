@@ -840,12 +840,13 @@ class _RenderProgressBar extends RenderBox {
     markNeedsLayout();
   }
 
-  /// The text scaler for the `progress` and `total` text labels.
-  TextScaler get textScaler => _textScaler;
-  TextScaler _textScaler;
-  set textScaler(TextScaler value) {
-    if (_textScaler == value) return;
-    _textScaler = value;
+  /// The text scale factor for the `progress` and `total` text labels.
+  /// By default the value is 1.0.
+  double get textScaleFactor => _textScaleFactor;
+  double _textScaleFactor;
+  set textScaleFactor(double value) {
+    if (_textScaleFactor == value) return;
+    _textScaleFactor = value;
     _clearLabelCache();
     markNeedsLayout();
   }
