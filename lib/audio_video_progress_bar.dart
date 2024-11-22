@@ -477,8 +477,7 @@ class _RenderProgressBar extends RenderBox {
   _EagerHorizontalDragGestureRecognizer? _drag;
 
   // This switch controls whether the drag is enabled or not.
-  bool _dragEnabled = false;
-  set dragEnabled(bool dragEnabled) => _dragEnabled = dragEnabled;
+  bool _dragEnabled;
 
   // This is a value between 0.0 and 1.0 used to indicate the position on
   // the bar.
